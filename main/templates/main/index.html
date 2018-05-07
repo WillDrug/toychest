@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>IT Toy Chest</title>
+
+    <meta name="description" content="Just some toys made for fun">
+    <meta name="author" content="http://github.com/willdrug">
+
+    <link href="{% static 'main/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'main/css/style.css' %}" rel="stylesheet">
+	<script src="{% static 'main/js/jquery.min.js' %}"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/tether/1.4.4/js/tether.min.js"></script>
+	<script src="{% static 'main/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'main/js/scripts.js' %}"></script>
+  </head>
+  <!--<body style="background-color: black; background-repeat: no-repeat; background-image: url('{% static 'main\stamp.png' %}')">-->
+  <body>
+
+    <div class="container-fluid">
+		<div class="row" style="height: 50px;">
+
+		</div>
+	<div class="row">
+		<div class="col-md-2">
+			<ul class="nav flex-column nav-pills">
+				<li class="nav-item dropdown ml-md-auto">
+					 <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown">Contacts</a>
+					  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+						 <a class="dropdown-item" href="https://www.linkedin.com/in/cepreu-bobkov/">LinkedIn</a>
+						 <a class="dropdown-item" href="mailto:cepreu.bobkov@gmail.com">Email</a>
+						<div class="dropdown-divider">
+						</div> <a class="dropdown-item" href="https://github.com/WillDrug/">GitHub</a>
+					</div>
+				</li>
+
+				<li class="nav-item">
+					<a class="nav-link active" href="/">Home</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="emojiurl/">Emoji-Url</a>
+				</li>
+			</ul>
+		</div>
+		<div class="col-md-10">
+			{% block content %}
+				<!--<img src="{% static 'main\resistance.jpg' %}">-->
+			{% endblock %}
+		</div>
+	</div>
+</div>
+
+  </body>
+</html>
