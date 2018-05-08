@@ -1,15 +1,7 @@
 from django.db.utils import IntegrityError
 from django.shortcuts import render, redirect
-from django.http import HttpRequest, HttpResponse
-from emojiurl.forms import NewLinkForm
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.urls import reverse
-from django.forms import inlineformset_factory, modelformset_factory
-from annoying.decorators import ajax_request
-from datetime import datetime, timedelta
-from django.utils import timezone
-from barnum import gen_data
 
 from emojiurl.forms import NewLinkForm
 from emojiurl.codec import to_emoji, from_emoji
