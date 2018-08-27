@@ -20,6 +20,7 @@ from django.conf.urls import include, url
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^/a', include('amelchenko.urls')),
     url(r'^emojiurl/', include('emojiurl.urls')),
-    url(r'', include('main.urls'))
+    url(r'', include('main.urls')),
 ]
