@@ -38,8 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'emojiurl',
-    'main',
-    'amelchenko'
+    'main'
 ]
 
 MIDDLEWARE = [
