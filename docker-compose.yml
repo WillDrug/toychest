@@ -1,0 +1,27 @@
+version: '3'
+services:
+  nginx:
+    build:
+      context: nginx
+    container_name: nginx
+    hostname: nginx
+    networks:
+      - toynet
+    ports:
+      - 80:80
+      - 443:443
+
+  toychest:
+    build:
+      context: toychest
+    container_name: toychest
+    hostname: toychest
+    networks:
+      - toynet
+
+# TODO: REDIS
+
+networks:
+  toynet:
+    external:
+      name: toynet
