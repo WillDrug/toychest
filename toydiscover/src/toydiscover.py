@@ -37,7 +37,7 @@ class DiscoverHandler(tornado.web.RequestHandler):
 
         st = self.settings['db']
         try:
-            st.set(name, desc, ex=17800)  # todo expiry, dynamic names
+            st.set(name, desc, ex=30)  # todo expiry, dynamic names
         except RedisError:
             return self.bad_response('Database down')
 

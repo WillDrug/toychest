@@ -4,14 +4,14 @@ import tornado.options
 import tornado.web
 from time import time
 import requests
-
+from toydiscover.report import ToyDiscoverReporter
 from tornado.options import define, options
 
 define("port", default=80, help="run on the given port", type=int)
 
 class ToyDiscovery:
     def __init__(self):
-        self.cache_ex = 18700  # todo this and that and those
+        self.cache_ex = 60  # todo this and that and those
         self.cache_time = 0
         self.cache = {}
 
@@ -19,6 +19,7 @@ class ToyDiscovery:
         if (self.cache_time - time()) < (0-self.cache_ex):
             rs = requests.get('http://toydiscover')
             self.cache = rs.json()
+            self.cache_time = time()
         return self.cache
 
 
@@ -34,6 +35,8 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 def main():
+    reporter = ToyDiscoverReporter('toychest', 'Toychest', 'I am a little Teapot, short and 418.')
+    reporter.ioloop()
     tornado.options.parse_command_line()
     application = tornado.web.Application([(r"/?.+", MainHandler)], td=ToyDiscovery()) # todo module this up
     http_server = tornado.httpserver.HTTPServer(application)
