@@ -9,7 +9,7 @@ from tornado.options import define, options
 
 define("port", default=80, help="run on the given port", type=int)
 
-rd = Redis('redis', 6379, 0, None, decode_responses=True, encoding='utf-8')
+rd = Redis('redis', 6379, 0, None, decode_responses=True, encoding='utf-8')  # todo param up?
 
 class DiscoverHandler(tornado.web.RequestHandler):
 
@@ -26,7 +26,7 @@ class DiscoverHandler(tornado.web.RequestHandler):
             return self.bad_response('Failed to parse inbound message')
 
         if inb.get('ver') != 1:
-            return self.bad_response('version mismatch')
+            return self.bad_response('version mismatch')  # todo module this up so versioning makes sense
 
         inb = inb.get('payload')
         if inb is None:
@@ -37,7 +37,7 @@ class DiscoverHandler(tornado.web.RequestHandler):
 
         st = self.settings['db']
         try:
-            st.set(name, desc, ex=17800) # todo expiry, dynamic names
+            st.set(name, desc, ex=17800)  # todo expiry, dynamic names
         except RedisError:
             return self.bad_response('Database down')
 
