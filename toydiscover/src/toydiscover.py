@@ -34,10 +34,12 @@ class DiscoverHandler(tornado.web.RequestHandler):
 
         name = inb.get('name')
         desc = inb.get('description')
+        host = inb.get('host')
 
         st = self.settings['db']
         try:
-            st.set(name, desc, ex=30)  # todo expiry, dynamic names
+            st.set(f'desc.{name}', desc, ex=30)
+            st.set(f'host.{name}', host, ex=30)  # todo expiry, dynamic names
         except RedisError:
             return self.bad_response('Database down')
 
@@ -49,8 +51,16 @@ class DiscoverHandler(tornado.web.RequestHandler):
     def get(self):
         st = self.settings['db']
         try:
-            ks = st.keys('*')
-            ret = {k:rd.get(k) for k in ks}
+            ksdesc = st.keys('desc.*')
+            kshosts = st.keys('host.*')
+
+            ret = {q[5:]:{} for q in set(ksdesc+kshosts)}
+
+            for kd in ksdesc:
+                ret[kd[5:]]['desc'] = st.get(kd)
+            for kh in kshosts:
+                ret[kd[5:]]['host'] = st.get(kh)
+
         except RedisError:
             return self.bad_response('Database down')
 

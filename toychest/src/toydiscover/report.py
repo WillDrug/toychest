@@ -12,7 +12,7 @@ class ToyDiscoverReporter:
         self.description = description
 
     def report(self):  # todo: param the URI up may be?
-        requests.post('http://toydiscover', json={'ver': self.ver, 'payload': {'host': self.host,
+        requests.post(f'http://toydiscover', json={'ver': self.ver, 'payload': {'host': self.host,
                                                                                'name': self.name,
                                                                                'description': self.description}})
 

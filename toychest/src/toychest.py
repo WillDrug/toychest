@@ -4,8 +4,9 @@ import tornado.options
 import tornado.web
 from time import time
 import requests
-from toydiscover.report import ToyDiscoverReporter
 from tornado.options import define, options
+
+from toydiscover.report import ToyDiscoverReporter
 
 define("port", default=80, help="run on the given port", type=int)
 
@@ -17,7 +18,7 @@ class ToyDiscovery:
 
     def get_services(self):
         if (self.cache_time - time()) < (0-self.cache_ex):
-            rs = requests.get('http://toydiscover')
+            rs = requests.get('http://toydiscover')  # todo this
             self.cache = rs.json()
             self.cache_time = time()
         return self.cache
@@ -29,7 +30,7 @@ class MainHandler(tornado.web.RequestHandler):
         srvs = self.settings['td'].get_services()
         self.write(f"Hello, this is an index!<br>")
         for srv in srvs:
-            self.write(f"<a href=\"/{srv}\">{srv}</a>:<i>{srvs[srv]}</i><br>")
+            self.write(f"<a href=\"/{srvs[srv].get('host')}\">{srv}</a>:<i>{srvs[srv].get('desc')}</i><br>")
         self.finish()
         return
 
