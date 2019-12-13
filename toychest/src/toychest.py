@@ -26,7 +26,6 @@ class ToyDiscovery:
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-
         srvs = self.settings['td'].get_services()
         self.write(f"Hello, this is an index!<br>")
         for srv in srvs:
