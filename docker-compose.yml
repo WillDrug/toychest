@@ -18,10 +18,36 @@ services:
     hostname: toychest
     networks:
       - toynet
+      - toysupport
 
-# TODO: REDIS
+  redis:
+    image: 'bitnami/redis:5.0'
+    environment:
+      # todo: redesign paramter passing with CI
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    networks:
+      - toysupport
+    container_name: redis
+    hostname: redis
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+
+  toydiscover:
+    build:
+      context: toydiscover
+    container_name: toydiscover
+    hostname: toydiscover
+    networks:
+      - toysupport
+
+
+volumes:
+  redis_data:
+    driver: local
 
 networks:
+  toysupport:
   toynet:
     external:
       name: toynet
