@@ -12,10 +12,15 @@ class ToyDiscoverReporter:
         self.description = description
 
     def report(self):  # todo: param the URI up may be?
-        requests.post(f'http://toydiscover', json={'ver': self.ver, 'payload': {'host': self.host,
-                                                                               'name': self.name,
-                                                                               'description': self.description}})
+        try:
+            requests.post(f'http://toydiscover', json={'ver': self.ver, 'payload': {'host': self.host,
+                                                                                   'name': self.name,
+                                                                                   'description': self.description}})
+            return True
+        except requests.exceptions.ConnectionError as e:
+            # fixme: logging
+            return False
 
     def ioloop(self):
-        self.report()
-        threading.Timer(ToyDiscoverReporter.WAIT_SECONDS, self.ioloop).start()
+        if self.report():
+            threading.Timer(ToyDiscoverReporter.WAIT_SECONDS, self.ioloop).start()
