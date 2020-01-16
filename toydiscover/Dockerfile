@@ -11,6 +11,6 @@ COPY ./requirements.txt ./
 RUN pip install -r requirements.txt
 
 # Bundle app source
-COPY src ./
+COPY toydiscover.py ./
 
-CMD [ "python", "toychest.py" ]
+CMD [ "python", "toydiscover.py" ]
