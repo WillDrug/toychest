@@ -24,3 +24,10 @@ class ToyDiscoverReporter:
     def ioloop(self):
         if self.report():
             threading.Timer(ToyDiscoverReporter.WAIT_SECONDS, self.ioloop).start()
+        requests.post(f'http://toydiscover', json={'ver': self.ver, 'payload': {'host': self.host,
+                                                                               'name': self.name,
+                                                                               'description': self.description}})
+
+    def ioloop(self):
+        self.report()
+        threading.Timer(ToyDiscoverReporter.WAIT_SECONDS, self.ioloop).start()
