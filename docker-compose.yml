@@ -3,6 +3,7 @@ services:
   nginx:
     build:
       context: nginx
+    image: toychest-nginx:1.0.0
     container_name: nginx
     hostname: nginx
     networks:
@@ -14,6 +15,7 @@ services:
   toychest:
     build:
       context: toychest
+    image: toychest:1.0.0
     container_name: toychest
     hostname: toychest
     networks:
@@ -36,6 +38,7 @@ services:
   toydiscover:
     build:
       context: toydiscover
+    image: toydiscover:1.0.0
     container_name: toydiscover
     hostname: toydiscover
     networks:
