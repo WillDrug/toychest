@@ -20,7 +20,6 @@ services:
     hostname: toychest
     networks:
       - toynet
-      - toysupport
 
   redis:
     image: 'bitnami/redis:5.0'
@@ -42,6 +41,7 @@ services:
     container_name: toydiscover
     hostname: toydiscover
     networks:
+      - toynet
       - toysupport
 
 
