@@ -4,6 +4,7 @@ import requests, threading
 
 class ToyDiscoverReporter:
     WAIT_SECONDS = 25
+    WAIT_SECONDS_FAILURE = 120
 
     def __init__(self, host, name, description):
         self.ver = 1
@@ -18,16 +19,11 @@ class ToyDiscoverReporter:
                                                                                    'description': self.description}})
             return True
         except requests.exceptions.ConnectionError as e:
-            # fixme: logging
+            print(f'I am a console output debug line. Kill me. {e.__class__} : {e.__str__()}')
             return False
 
     def ioloop(self):
         if self.report():
             threading.Timer(ToyDiscoverReporter.WAIT_SECONDS, self.ioloop).start()
-        requests.post(f'http://toydiscover', json={'ver': self.ver, 'payload': {'host': self.host,
-                                                                               'name': self.name,
-                                                                               'description': self.description}})
-
-    def ioloop(self):
-        self.report()
-        threading.Timer(ToyDiscoverReporter.WAIT_SECONDS, self.ioloop).start()
+        else:
+            threading.Timer(ToyDiscoverReporter.WAIT_SECONDS_FAILURE, self.ioloop).start()

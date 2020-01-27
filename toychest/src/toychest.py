@@ -27,10 +27,8 @@ class ToyDiscovery:
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         srvs = self.settings['td'].get_services()
-        self.write(f"Hello, this is an index!<br>")
-        for srv in srvs:
-            self.write(f"<a href=\"/{srvs[srv].get('host')}\">{srv}</a>:<i>{srvs[srv].get('desc')}</i><br>")
-        self.finish()
+        # srvs = {'a': {'host': 'a/', 'desc': 'test'}}
+        self.render('index.html', **{'srvs': srvs})
         return
 
 
@@ -38,7 +36,7 @@ def main():
     reporter = ToyDiscoverReporter('toychest', 'Toychest', 'I am a little Teapot, short and 418.')
     reporter.ioloop()
     tornado.options.parse_command_line()
-    application = tornado.web.Application([(r"/?.+", MainHandler)], td=ToyDiscovery()) # todo module this up
+    application = tornado.web.Application([(r"/?.+", MainHandler)], td=ToyDiscovery(), static_path='templates/static', template_path='templates') # todo module this up
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port)
     tornado.ioloop.IOLoop.current().start()

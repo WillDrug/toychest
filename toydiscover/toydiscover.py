@@ -32,9 +32,9 @@ class DiscoverHandler(tornado.web.RequestHandler):
         if inb is None:
             return self.bad_response('Malformed inbound message')
 
-        name = inb.get('name')
-        desc = inb.get('description')
-        host = inb.get('host')
+        name = inb.get('name', '')
+        desc = inb.get('description', '')
+        host = inb.get('host', '')
 
         st = self.settings['db']
         try:
