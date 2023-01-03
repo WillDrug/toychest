@@ -1,0 +1,3 @@
+[submodule "toydiscover/src/toycommons"]
+	path = toydiscover/src/toycommons
+	url = git@github.com:WillDrug/toycommons.git

@@ -1,2 +1,5 @@
-tornado
-redis
+uvicorn
+fastapi
+pymongo
+pydantic
+requests

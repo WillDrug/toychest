@@ -9,44 +9,55 @@ services:
     networks:
       - toynet
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
 
-  toychest:
-    build:
-      context: toychest
-    image: toychest:1.0.0
-    container_name: toychest
-    hostname: toychest
-    networks:
-      - toynet
-      - toysupport
-
-  redis:
-    image: 'bitnami/redis:5.0'
-    environment:
-      # todo: redesign paramter passing with CI
-      - ALLOW_EMPTY_PASSWORD=yes
-      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+  toydb:
+    image: mongo  # latest
+    restart: always
+    container_name: toydb
+    hostname: toydb
     networks:
       - toysupport
-    container_name: redis
-    hostname: redis
     volumes:
-      - 'redis_data:/bitnami/redis/data'
+      - database_volume:/data/configdb
+      - database_volume:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: qwerty # todo env variables
 
   toydiscover:
     build:
       context: toydiscover
     image: toydiscover:1.0.0
     container_name: toydiscover
+    depends_on:
+      - toydb
+      - nginx
     hostname: toydiscover
     networks:
-      - toysupport
+      toysupport:
+#        aliases:   # example for subdomains
+#          - extra.toydiscover
 
+  toychest:
+    build:
+      context: toychest
+    image: toychest:1.0.0
+    container_name: toychest
+    depends_on:
+      - toydiscover
+    hostname: toychest
+    networks:
+      - toysupport
+      - toynet
+
+# todo logging monitoring module
 
 volumes:
-  redis_data:
+  database_volume:
+    driver: local
+  log_volume:
     driver: local
 
 networks:
