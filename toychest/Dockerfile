@@ -5,6 +5,9 @@ LABEL MAINTAINER="WillDrug"
 # Create app directory
 WORKDIR /app
 
+COPY ./src/toycommons/requirements.txt ./
+RUN pip install -r requirements.txt
+
 # Install app dependencies
 COPY ./requirements.txt ./
 

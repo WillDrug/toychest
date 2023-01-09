@@ -1,3 +1,9 @@
 [submodule "toydiscover/src/toycommons"]
 	path = toydiscover/src/toycommons
 	url = git@github.com:WillDrug/toycommons.git
+[submodule "toychest/toycommons"]
+	path = toychest/toycommons
+	url = ssh://git@github.com/WillDrug/toycommons.git
+[submodule "toychest/src/toycommons"]
+	path = toychest/src/toycommons
+	url = ssh://git@github.com/WillDrug/toycommons.git

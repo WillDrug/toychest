@@ -13,14 +13,14 @@ services:
       - "443:443"
 
   toydb:
-    image: mongo  # latest
+    image: mongo  # latest  # todo why do I need a database here? I don't use it O-o
     restart: always
     container_name: toydb
     hostname: toydb
     networks:
       - toysupport
     volumes:
-      - database_volume:/data/configdb
+      - database_config:/data/configdb
       - database_volume:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
@@ -35,6 +35,8 @@ services:
       - toydb
       - nginx
     hostname: toydiscover
+    environment:
+      - DRIVE_INIT_TOKEN=${DRIVE_INIT_TOKEN}
     networks:
       toysupport:
 #        aliases:   # example for subdomains
@@ -55,6 +57,8 @@ services:
 # todo logging monitoring module
 
 volumes:
+  database_config:
+    driver: local
   database_volume:
     driver: local
   log_volume:

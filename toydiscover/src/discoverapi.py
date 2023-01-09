@@ -2,7 +2,8 @@ from fastapi import FastAPI, Request
 from toycommons import ToyInfra
 from toycommons.model.service import Service
 from time import time
-
+from os import getenv
+import json
 
 def prepare_app(tc):
     app = FastAPI()
@@ -25,7 +26,6 @@ def prepare_app(tc):
         return [q['service'] for q in service_data.values()]
 
     return app
-
 
 tc = ToyInfra(user='root', passwd='qwerty')  # todo env
 app = prepare_app(tc)
