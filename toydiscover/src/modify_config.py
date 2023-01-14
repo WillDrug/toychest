@@ -11,15 +11,16 @@ if __name__ == '__main__':
     host = getenv('host', 'mongodb://toydb')
     port = int(getenv('port', 27017))
     drive_port = int(getenv('drive_port', 8080))
-    username = getenv('username')
-    password = getenv('password')
+    username = getenv('username') or 'root'
+    password = getenv('password') or 'qwerty'
     init_drive = True if getenv('init_drive', False) else False
     drive_secret = getenv('drive_secret')
     config_json = getenv('config_json')
 
 
     client = MongoClient(host=host, port=port, username=username, password=password)
-    config = Config(client.toyinfra.config)
+    config = Config(client.toyinfra.mainline)
+
     host_callback = getenv('drive_host', config.base_url)
 
     if init_drive:
@@ -32,4 +33,4 @@ if __name__ == '__main__':
     if config_json:
         mod = json.loads(config_json)
         for k in mod:
-            config.set_any(k, mod[k])
+            config[k] = mod[k]
