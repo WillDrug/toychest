@@ -58,7 +58,7 @@
             <div class="row" style="margin-bottom: 2rem">
                 <div class="list-group list-group-horizontal col-12 d-grid gap-2 d-md-flex justify-content-md-center">
                     <button class="btn btn-light active" id="mainbtn" onclick="resetCards()">All</button>
-                    {% for tag in data.tags %}
+                    {% for tag in tags %}
                         <button class="btn btn-light tagbtn" onclick="setTag(this)">{{ tag }}</button>
                     {% endfor %}
                 </div>

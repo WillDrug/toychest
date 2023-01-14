@@ -21,6 +21,7 @@ app.config.setdefault('backoff', times[0])
 def index():
     services = tc.discover.get_services()
     services.extend([Service(**q) for q in toychest_data.data['cards']])
+    tags = []
     for service in services:
         if not service.host.startswith('http'):
             service.host = tc.get_url(service.host)
@@ -28,9 +29,9 @@ def index():
             service.image = f'{tc.self_url}/dynamic/{service.image}'
         if service.tags is None:
             service.tags = ()
-    toychest_data.data['tags'] = list(set(chain(*[q.tags for q in services if q.tags is not None])))
+        tags = list(set(chain(*[q.tags for q in services if q.tags is not None])))
 
-    return render_template('index.html', url=tc.self_url, data=toychest_data.data, services=services)
+    return render_template('index.html', url=tc.self_url, data=toychest_data.data, services=services, tags=tags)
 
 @app.route('/dynamic/<path:filename>')
 def dynamic(filename):
