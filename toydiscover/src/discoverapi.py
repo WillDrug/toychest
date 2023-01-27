@@ -36,7 +36,6 @@ def prepare_app(tc):
         # tc.get_own_config(ignore_cache=True) -> into tc.config
         config = tc.drive.file_by_id(tc.config.config_file_id)
         config = json.loads(config.decode())  # todo error dodge?
-        print(f'Updated config. Delete me and change me to logging.')
         for k in config:
             tc.config[k] = config[k]
 

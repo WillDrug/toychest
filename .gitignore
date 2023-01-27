@@ -3,7 +3,7 @@ db.sqlite3
 __pycache__/
 *.py[cod]
 *$py.class
-
+test_gdoc.pcl
 # C extensions
 *.so
 

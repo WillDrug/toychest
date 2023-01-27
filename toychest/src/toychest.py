@@ -8,14 +8,15 @@ from os import path, getenv
 from itertools import chain
 from time import time
 
-
 app = Flask(__name__)
 tc = ToyInfra('toychest', user='root', passwd='qwerty')
-tc.drive.add_directory('toychest')
+tc.drive.add_directory(tc.name)
+
 toychest_data = tc.get_own_config()  # command action sync domain toychest filename toychest.json
 
 times = [5, 30, 180, 3000, -1]
 app.config.setdefault('backoff', times[0])
+
 
 @app.route("/")
 def index():
@@ -23,7 +24,9 @@ def index():
     services.extend([Service(**q) for q in toychest_data.data['cards']])
     tags = []
     for service in services:
-        if not service.host.startswith('http'):
+        if service.host.startswith('/'):
+            service.host = tc.self_url + service.host
+        elif not service.host.startswith('http'):
             service.host = tc.get_url(service.host)
         if service.image is not None and not service.image.startswith('http'):
             service.image = f'{tc.self_url}/dynamic/{service.image}'
@@ -32,6 +35,7 @@ def index():
         tags = list(set(chain(*[q.tags for q in services if q.tags is not None])))
 
     return render_template('index.html', url=tc.self_url, data=toychest_data.data, services=services, tags=tags)
+
 
 @app.route('/dynamic/<path:filename>')
 def dynamic(filename):
@@ -43,9 +47,17 @@ def dynamic(filename):
 
     return app.send_static_file(filename)
 
+
+@app.route('/g/<fileid>')
+def google_doc(fileid):
+    # expect Google Doc or Binary.
+    gdoc = tc.drive.get_google_doc(fileid, domain=tc.name, get_synced=True, command_queue=tc.commands)
+    return render_template('google_doc.html', document=gdoc.data.as_html(), url=tc.self_url)
+
+
 @app.route('/command', methods=['POST', 'GET'])
 def command():
-    if tc.cache.backoff == -1 or (tc.cache.backed_off is not None and time()-tc.cache.backed_off < tc.cache.backoff):
+    if tc.cache.backoff == -1 or (tc.cache.backed_off is not None and time() - tc.cache.backed_off < tc.cache.backoff):
         return abort(500, 'Fuck You.')
     tc.cache.backed_off = None
     result = None
