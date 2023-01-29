@@ -1,5 +1,5 @@
 import flask
-from flask import Flask, request, render_template, abort
+from flask import Flask, request, render_template, abort,
 from toycommons import ToyInfra, InfraException
 from toycommons.model.service import Service
 from toycommons.model.command import Command
@@ -48,9 +48,13 @@ def dynamic(filename):
     return app.send_static_file(filename)
 
 
-@app.route('/g/<fileid>')
-def google_doc(fileid):
-    # expect Google Doc or Binary.
+@app.route('/g/<service_name>')
+def google_doc(service_name):
+    # expect to request an existing card (!)
+    card = next((x for x in toychest_data.data['cards'] if x.get('name')), None)
+    if card is None:
+        return '', 404
+    fid = card.get('g_doc')
     gdoc = tc.drive.get_google_doc(fileid, domain=tc.name, get_synced=True, command_queue=tc.commands)
     return render_template('google_doc.html', document=gdoc.data.as_html(), url=tc.self_url)
 
