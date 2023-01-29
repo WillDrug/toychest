@@ -1,10 +1,10 @@
-import flask
-from flask import Flask, request, render_template, abort,
-from toycommons import ToyInfra, InfraException
+from flask import Flask, request, render_template, abort
+from toycommons import ToyInfra
 from toycommons.model.service import Service
 from toycommons.model.command import Command
 from pymongo.errors import OperationFailure
-from os import path, getenv
+from toycommons.drive.document import HTMLConverter, CSSStructure
+from os import path
 from itertools import chain
 from time import time
 
@@ -48,15 +48,23 @@ def dynamic(filename):
     return app.send_static_file(filename)
 
 
-@app.route('/g/<service_name>')
-def google_doc(service_name):
+@app.route('/g/<url_name>')
+def google_doc(url_name):
     # expect to request an existing card (!)
-    card = next((x for x in toychest_data.data['cards'] if x.get('name')), None)
+    card = next((x for x in toychest_data.data['cards'] if url_name in x.get('host')), None)
     if card is None:
         return '', 404
-    fid = card.get('g_doc')
-    gdoc = tc.drive.get_google_doc(fileid, domain=tc.name, get_synced=True, command_queue=tc.commands)
-    return render_template('google_doc.html', document=gdoc.data.as_html(), url=tc.self_url)
+    fid = card.get(url_name)
+    if fid is None:
+        return '', 404
+    gdoc = tc.drive.get_google_doc(fid, filename=f'url_name.gdoc',
+                                   domain=tc.name, get_synced=True, command_queue=tc.commands,
+                                   cache_images=True, image_folder=app.static_folder,
+                                   uri_prepend=f'{tc.self_url}/dynamic/')
+    classes = CSSStructure(outer_div='container-doc main-body container')
+    html_converter = HTMLConverter(gdoc.data, css_classes=classes)
+    return render_template('google_doc.html', document=html_converter.body_as_html(), data=toychest_data.data,
+                           url=tc.self_url)
 
 
 @app.route('/command', methods=['POST', 'GET'])
@@ -72,7 +80,7 @@ def command():
             extra_tc = ToyInfra('admin', user=data.pop('user'), passwd=data.pop('password'))
             c = Command(**data)
             extra_tc.commands.insert(c)
-        except OperationFailure as e:
+        except OperationFailure:
             try:
                 idx = times.index(tc.cache.backoff)
             except ValueError:
@@ -88,5 +96,5 @@ def command():
         else:
             result = 'Ok'
             tc.cache.backoff = None
-    return render_template('command.html', url=tc.self_url, data=toychest_data,
+    return render_template('command.html', url=tc.self_url, data=toychest_data.data,
                            fields=Command.all_fields(), result=result)
