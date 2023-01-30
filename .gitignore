@@ -6,7 +6,7 @@ __pycache__/
 test_gdoc.pcl
 # C extensions
 *.so
-data/certbot
+
 # Distribution / packaging
 .Python
 build/
