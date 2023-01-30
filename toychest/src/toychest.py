@@ -17,11 +17,34 @@ toychest_data = tc.get_own_config()  # command action sync domain toychest filen
 times = [5, 30, 180, 3000, -1]
 app.config.setdefault('backoff', times[0])
 
+def get_servable_docs():
+    gdocs = []
+    for f in tc.drive.list_google_docs(folder=tc.name):
+        if ';' not in f['description']:
+            continue
+        srv = {'name': f['name']}
+        local_name, srv['description'] = f['description'].split(';')
+        srv['host'] = f'/g/{local_name}'
+        srv.update(toychest_data.data.get('gdocs', {}).get(srv['host'], {}))
+        gdocs.append(Service(**srv))
+
+    return gdocs
+
+def get_doc_id(name):
+    for f in tc.drive.list_google_docs(folder=tc.name):
+        if ';' not in f['description']:
+            continue
+        doc_name, _ = f['description'].split(';')
+        if doc_name == name:
+            return f['id']
+    return None
 
 @app.route("/")
 def index():
     services = tc.discover.get_services()
     services.extend([Service(**q) for q in toychest_data.data['cards']])
+    services.extend(get_servable_docs())
+
     tags = []
     for service in services:
         if service.host.startswith('/'):
@@ -51,16 +74,14 @@ def dynamic(filename):
 @app.route('/g/<url_name>')
 def google_doc(url_name):
     # expect to request an existing card (!)
-    card = next((x for x in toychest_data.data['cards'] if url_name in x.get('host')), None)
-    if card is None:
-        return '', 404
-    fid = card.get(url_name)
+    fid = get_doc_id(url_name)
     if fid is None:
         return '', 404
-    gdoc = tc.drive.get_google_doc(fid, filename=f'url_name.gdoc',
+
+    gdoc = tc.drive.get_google_doc(url_name, fid, filename=f'{url_name}.gdoc',
                                    domain=tc.name, get_synced=True, command_queue=tc.commands,
                                    cache_images=True, image_folder=app.static_folder,
-                                   uri_prepend=f'{tc.self_url}/dynamic/')
+                                   uri_prepend=f'{tc.self_url}/static/')
     classes = CSSStructure(outer_div='container-doc main-body container')
     html_converter = HTMLConverter(gdoc.data, css_classes=classes)
     return render_template('google_doc.html', document=html_converter.body_as_html(), data=toychest_data.data,
@@ -78,8 +99,15 @@ def command():
         data = request.form.to_dict()
         try:
             extra_tc = ToyInfra('admin', user=data.pop('user'), passwd=data.pop('password'))
+            for k in list(data.keys()):
+                if data[k] is None or data[k] == '':
+                    del data[k]
             c = Command(**data)
-            extra_tc.commands.insert(c)
+            if c.action == 'recache':  # todo: unify recaching among toys
+                for k in tc.drive.directories:
+                    tc.drive.directories[k].clear_cache()
+            else:
+                extra_tc.commands.insert(c)
         except OperationFailure:
             try:
                 idx = times.index(tc.cache.backoff)
