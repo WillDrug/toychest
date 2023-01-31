@@ -83,9 +83,11 @@ def google_doc(url_name):
                                    cache_images=True, image_folder=app.static_folder,
                                    uri_prepend=f'{tc.self_url}/static/')
     classes = CSSStructure(outer_div='container-doc main-body container')
-    html_converter = HTMLConverter(gdoc.data, css_classes=classes)
+    cards = get_servable_docs()
+    cards = [q for q in cards if url_name not in q.host]
+    html_converter = HTMLConverter(gdoc.data, css_classes=classes, ignore_black_white=True)
     return render_template('google_doc.html', document=html_converter.body_as_html(), data=toychest_data.data,
-                           url=tc.self_url)
+                           url=tc.self_url, cards=cards)
 
 
 @app.route('/command', methods=['POST', 'GET'])

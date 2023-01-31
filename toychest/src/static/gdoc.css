@@ -1,0 +1,20 @@
+
+.title {
+    font-size: 40px;
+    font-weight: bolder;
+}
+
+.container-doc {
+    display: flex;
+    flex-direction: column;
+    align-content: space-around;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: var(--bs-dark)!important;
+        color: var(--bs-light)!important;
+    }
+}

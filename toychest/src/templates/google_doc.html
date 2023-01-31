@@ -11,28 +11,31 @@
           rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
           crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url }}/static/toychest.css">
+    <link rel="stylesheet" href="{{ url }}/static/gdoc.css">
     <link rel="stylesheet" href="{{ url }}/static/fonts.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"
             integrity="sha384-GNFwBvfVxBkLMJpYMOABq3c+d3KnQxudP/mGPkzpZSTYykLBNsZEnG2D9G/X/+7D" crossorigin="anonymous"
             async></script>
-    <style>
-        .container-doc {
-            display: flex;
-            flex-direction: column;
-            align-content: space-around;
-            justify-content: flex-start;
-            align-items: center;
-            flex-wrap: nowrap;
-        }
-    </style>
 
 </head>
 <body data-bs-theme="light">
     <header class="p-2 text-bg-dark">
         <div class="container">
-            <div class="d-flex flex-wrap align-items-center justify-content-center">
+            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                <a class="btn btn-dark" href="{{ url }}"><i class="fa fa-home"></i></a>
                 <button onclick="changeTheme()" style="padding: 0px" class="btn btn-dark border-secondary"><strong style="margin-left: 20px; margin-right: 20px">Toychest</strong></button>
+                <div class="dropdown">
+                  <button class="btn btn-dark" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-bars"></i>
+                  </button>
+
+                  <ul class="dropdown-menu dropdown-menu-dark">
+                      {% for card in cards %}
+                          <li><a class="dropdown-item" href="{{ url }}/{{ card.host }}">{{ card.name }}</a></li>
+                      {% endfor %}
+                  </ul>
+                </div>
             </div>
         </div>
     </header>
@@ -50,52 +53,6 @@
 
 </body>
 <script>
-    var m;
-    var tags = [];
-    var grid = document.getElementById('grid');
-    var offgrid = document.getElementById('offgrid')
-    window.onload = function() {
-        m = new Masonry('#grid', {itemSelector: '.toycard', columnWidth: '.sizer'});
-        m.layout();
-    }
-    function resetCards() {
-        tags = [];
-        document.getElementById("mainbtn").classList.add('active');
-        for (let item of document.getElementsByClassName('tagbtn')) {
-            item.classList.remove('active')
-        }
-
-        for (let item of document.getElementsByClassName('toycard')) {
-            item.classList.remove('d-none');
-        }
-        m.layout();
-    }
-    function setTag(elem) {
-        if (elem.classList.contains('active')) {
-            if (tags.indexOf(elem.innerText) > -1) {
-                tags.splice(tags.indexOf(elem.innerText), 1);
-            }
-            elem.classList.remove('active');
-        } else {
-            tags.push(elem.innerText);
-            elem.classList.add('active');
-        }
-        for (let item of document.getElementsByClassName('toycard')) {
-            let elemTags = (item.getAttribute('tags') || '').split(',')
-            if (tags.every(t => elemTags.includes(t))) {
-                item.classList.remove('d-none');
-            } else {
-                item.classList.add('d-none');
-            }
-        }
-        if (tags.length == 0) {
-            document.getElementById("mainbtn").classList.add('active');
-        } else {
-            document.getElementById("mainbtn").classList.remove('active');
-        }
-        m.layout();
-    }
-
     function changeTheme() {
         const cur = document.getElementsByTagName("body")[0].attributes['data-bs-theme'].value;
         if (cur === 'dark') {
