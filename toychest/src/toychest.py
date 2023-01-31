@@ -20,6 +20,8 @@ app.config.setdefault('backoff', times[0])
 def get_servable_docs():
     gdocs = []
     for f in tc.drive.list_google_docs(folder=tc.name):
+        if 'description' not in f:
+            continue
         if ';' not in f['description']:
             continue
         srv = {'name': f['name']}
@@ -32,6 +34,8 @@ def get_servable_docs():
 
 def get_doc_id(name):
     for f in tc.drive.list_google_docs(folder=tc.name):
+        if 'description' not in f:
+            continue
         if ';' not in f['description']:
             continue
         doc_name, _ = f['description'].split(';')
@@ -105,9 +109,16 @@ def command():
                 if data[k] is None or data[k] == '':
                     del data[k]
             c = Command(**data)
-            if c.action == 'recache':  # todo: unify recaching among toys
-                for k in tc.drive.directories:
-                    tc.drive.directories[k].clear_cache()
+            if c.action == 'configstr':
+                current = extra_tc.config[c.name]
+                if current is None or not isinstance(current, str):
+                    raise ArithmeticError(f'Wrong datatype or no config field')
+                extra_tc.config[c.name] = c.str_value
+            elif c.action == 'configint':
+                current = extra_tc.config[c.name]
+                if current is None or not isinstance(current, int):
+                    raise ArithmeticError(f'Wrong datatype or no config field')
+                extra_tc.config[c.name] = int(c.num_value)
             else:
                 extra_tc.commands.insert(c)
         except OperationFailure:
