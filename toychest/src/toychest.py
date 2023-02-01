@@ -8,6 +8,7 @@ from os import path
 from itertools import chain
 from time import time
 
+
 app = Flask(__name__)
 tc = ToyInfra('toychest', user='root', passwd='qwerty')
 tc.drive.add_directory(tc.name)
@@ -16,6 +17,7 @@ toychest_data = tc.get_own_config()  # command action sync domain toychest filen
 
 times = [5, 30, 180, 3000, -1]
 app.config.setdefault('backoff', times[0])
+
 
 def get_servable_docs():
     gdocs = []
@@ -32,6 +34,7 @@ def get_servable_docs():
 
     return gdocs
 
+
 def get_doc_id(name):
     for f in tc.drive.list_google_docs(folder=tc.name):
         if 'description' not in f:
@@ -42,6 +45,7 @@ def get_doc_id(name):
         if doc_name == name:
             return f['id']
     return None
+
 
 @app.route("/")
 def index():
