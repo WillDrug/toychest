@@ -79,7 +79,7 @@ def dynamic(filename):
             pass
         resync = True
     if not path.exists(path.join(app.static_folder, filename)) or resync:
-        data = tc.drive.file_by_name(filename, folder='toychest')
+        data = tc.drive.file_by_name(filename, folder=tc.name)
         if data is not None:
             with open(path.join(app.static_folder, filename), 'wb') as f:
                 f.write(data)
