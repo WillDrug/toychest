@@ -70,7 +70,15 @@ def index():
 
 @app.route('/dynamic/<path:filename>')
 def dynamic(filename):
-    if not path.exists(path.join(app.static_folder, filename)):
+    resync = False
+    q = tc.commands.get_queue(action='sync', domain=tc.name, file=filename)
+    for c in q:
+        try:
+            q.send(True)
+        except StopIteration:
+            pass
+        resync = True
+    if not path.exists(path.join(app.static_folder, filename)) or resync:
         data = tc.drive.file_by_name(filename, folder='toychest')
         if data is not None:
             with open(path.join(app.static_folder, filename), 'wb') as f:
