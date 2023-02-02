@@ -3,7 +3,7 @@ services:
   nginx:
     image: nginx  # using latest. specify 1.15-alpine?
     restart: unless-stopped
-    container_name: nginx
+    container_name: toynginx
     hostname: nginx
     networks:
       - toynet
@@ -19,6 +19,7 @@ services:
   certbot:
     image: certbot/certbot
     restart: unless-stopped
+    container_name: toycertbot
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
