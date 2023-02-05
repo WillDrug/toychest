@@ -22,3 +22,7 @@
 .span {
     white-space: pre-wrap;
 }
+
+.section {
+    width: 100%;
+}

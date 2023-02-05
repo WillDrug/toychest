@@ -29,7 +29,7 @@ def get_servable_docs():
         srv = {'name': f['name']}
         local_name, srv['description'] = f['description'].split(';')
         srv['host'] = f'/g/{local_name}'
-        srv.update(toychest_data.data.get('gdocs', {}).get(srv['host'], {}))
+        srv.update(toychest_data.data.get('gdocs', {}).get(local_name, {}))
         gdocs.append(Service(**srv))
 
     return gdocs
