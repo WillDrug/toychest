@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, request, render_template, abort
 from toycommons import ToyInfra
 from toycommons.model.service import Service
@@ -17,7 +19,7 @@ import flask
 from toycommons.drive import DriveConnect
 
 app = Flask(__name__)
-tc = ToyInfra('toychest', user='root', passwd='qwerty')
+tc = ToyInfra('toychest', user=getenv('MONGO_USER'), passwd=getenv('MONGO_PASSWORD'))
 
 toychest_data = {}
 times = [5, 30, 180, 3000, -1]

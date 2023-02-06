@@ -42,5 +42,5 @@ def prepare_app(tc):
     return app
 
 
-tc = ToyInfra('toydiscover', user='root', passwd='qwerty')  # todo env
+tc = ToyInfra('toydiscover', user=getenv('MONGO_USER'), passwd=getenv('MONGO_PASSWORD'))
 app = prepare_app(tc)
