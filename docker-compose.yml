@@ -82,5 +82,5 @@ volumes:
 networks:
   toysupport:
   toynet:
-    external:
-      name: toynet
+    name: toynet
+    external: true
