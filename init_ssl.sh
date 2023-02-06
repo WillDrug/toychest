@@ -5,7 +5,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
-domains=(willdrug.me www.willdrug.me)
+domains=(willdrug.me *.willdrug.me)
 rsa_key_size=4096
 data_path="./data/certbot"
 email="$1"
