@@ -161,7 +161,11 @@ def command():
         else:
             result = 'Ok'
             tc.cache.backoff = None
-    return render_template('command.html', url=tc.self_url, data=toychest_data.data,
+    if isinstance(toychest_data, dict):
+        data = {'footer': 'Sadface'}
+    else:
+        data = toychest_data.data
+    return render_template('command.html', url=tc.self_url, data=data,
                            fields=Command.all_fields(), result=result)
 
 
