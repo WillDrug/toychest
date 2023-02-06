@@ -36,8 +36,8 @@ services:
       - database_config:/data/configdb
       - database_volume:/data/db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: qwerty # todo env variables
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
 
   toydiscover:
     build:
@@ -60,6 +60,8 @@ services:
       context: toychest
     image: toychest:1.0.0
     container_name: toychest
+    environment:
+      - DRIVE_PROJECT=${DRIVE_PROJECT_CHECK}
     depends_on:
       - toydiscover
     hostname: toychest
