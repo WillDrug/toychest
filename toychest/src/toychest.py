@@ -25,6 +25,7 @@ toychest_data = {}
 times = [5, 30, 180, 3000, -1]
 app.config.setdefault('backoff', times[0])
 
+
 if tc.drive is not None:
     try:
         tc.drive.add_directory(tc.name)
@@ -60,7 +61,6 @@ def get_doc_id(name):
             return f['id']
     return None
 
-
 @app.route("/")
 def index():
     services = tc.discover.get_services()
@@ -70,16 +70,17 @@ def index():
     tags = []
     for service in services:
         if service.host.startswith('/'):
-            service.host = tc.self_url + service.host
+            service.host = tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers) + service.host
         elif not service.host.startswith('http'):
-            service.host = tc.get_url(service.host)
+            service.host = tc.get_url(service.host, origin=flask.request.origin, headers=flask.request.headers)
         if service.image is not None and not service.image.startswith('http'):
-            service.image = f'{tc.self_url}/dynamic/{service.image}'
+            service.image = f'{tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers)}/dynamic/{service.image}'
         if service.tags is None:
             service.tags = ()
         tags = list(set(chain(*[q.tags for q in services if q.tags is not None])))
 
-    return render_template('index.html', url=tc.self_url, data=toychest_data.data, services=services, tags=tags)
+    return render_template('index.html', url=tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers),
+                           data=toychest_data.data, services=services, tags=tags)
 
 
 @app.route('/dynamic/<path:filename>')
@@ -111,13 +112,13 @@ def google_doc(url_name):
     gdoc = tc.drive.get_google_doc(url_name, fid, filename=f'{url_name}.gdoc',
                                    domain=tc.name, get_synced=True, command_queue=tc.commands,
                                    cache_images=True, image_folder=app.static_folder,
-                                   uri_prepend=f'{tc.self_url}/static/')
+                                   uri_prepend=f'{tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers)}/static/')
     classes = CSSStructure(outer_div='container-doc main-body container')
     cards = get_servable_docs()
     cards = [q for q in cards if url_name not in q.host]
     html_converter = HTMLConverter(gdoc.data, css_classes=classes, ignore_black_white=True)
     return render_template('google_doc.html', document=html_converter.body_as_html(), data=toychest_data.data,
-                           url=tc.self_url, cards=cards)
+                           url=tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers), cards=cards)
 
 
 @app.route('/command', methods=['POST', 'GET'])
@@ -167,7 +168,7 @@ def command():
         data = {'footer': 'Sadface'}
     else:
         data = toychest_data.data
-    return render_template('command.html', url=tc.self_url, data=data,
+    return render_template('command.html', url=tc.get_self_url(subdomain=subdomain_used()), data=data,
                            fields=Command.all_fields(), result=result)
 
 
@@ -183,7 +184,7 @@ def credentials_to_dict(credentials):
 
 @app.route("/.auth")  # key: /toychest/.auth
 def oauth2hack():
-    host_callback = tc.self_url + '/.auth'
+    host_callback = tc.get_self_url(subdomain=subdomain_used()) + '/.auth'
 
     if tc.cache.refuse:
         return 'no.', 500
