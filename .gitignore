@@ -7,6 +7,7 @@ test_gdoc.pcl
 # C extensions
 *.so
 .env
+*.lock
 # Distribution / packaging
 .Python
 build/
