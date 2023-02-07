@@ -7,3 +7,4 @@ certbot certonly -w /var/www/certbot \
     -d $domain \
     --agree-tos
 
+certbot certonly -w /var/www/certbot --domain $main_domain --agree-tos --preferred-challenges http
