@@ -19,7 +19,7 @@ import flask
 from toycommons.drive import DriveConnect
 
 app = Flask(__name__)
-tc = ToyInfra('toychest', user=getenv('MONGO_USER'), passwd=getenv('MONGO_PASSWORD'))
+tc = ToyInfra('toychest', user=getenv('MONGO_USER'), passwd=getenv('MONGO_PASSWORD'), ignore_drive_errors=True)
 
 toychest_data = {}
 times = [5, 30, 180, 3000, -1]
