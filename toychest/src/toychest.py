@@ -21,17 +21,12 @@ from toycommons.drive import DriveConnect
 app = Flask(__name__)
 tc = ToyInfra('toychest', user=getenv('MONGO_USER'), passwd=getenv('MONGO_PASSWORD'), ignore_drive_errors=True)
 
-toychest_data = {}
 times = [5, 30, 180, 3000, -1]
 app.config.setdefault('backoff', times[0])
 
 
-if tc.drive is not None:
-    try:
-        tc.drive.add_directory(tc.name)
-        toychest_data = tc.get_own_config()  # command action sync domain toychest filename toychest.json
-    except RefreshError:
-        pass  # todo: logging
+tc.drive.add_directory(tc.name)
+toychest_data = tc.get_own_config()  # command action sync domain toychest filename toychest.json
 
 
 def get_servable_docs():
