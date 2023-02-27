@@ -163,7 +163,7 @@ def command():
         data = {'footer': 'Sadface'}
     else:
         data = toychest_data.data
-    return render_template('command.html', url=tc.get_self_url(subdomain=subdomain_used()), data=data,
+    return render_template('command.html', url=tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers), data=data,
                            fields=Command.all_fields(), result=result)
 
 
@@ -179,7 +179,7 @@ def credentials_to_dict(credentials):
 
 @app.route("/.auth")  # key: /toychest/.auth
 def oauth2hack():
-    host_callback = tc.get_self_url(subdomain=subdomain_used()) + '/.auth'
+    host_callback = tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers) + '/.auth'
 
     if tc.cache.refuse:
         return 'no.', 500
