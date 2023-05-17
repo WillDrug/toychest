@@ -1,7 +1,5 @@
-import os
 
 from flask import Flask, request, render_template, abort
-from toycommons import ToyInfra
 from toycommons.model.service import Service
 from toycommons.model.command import Command
 from pymongo.errors import OperationFailure
@@ -9,7 +7,6 @@ from toycommons.drive.document import HTMLConverter, CSSStructure
 from os import path
 from itertools import chain
 from time import time
-from google.auth.exceptions import RefreshError
 from os import getenv
 import json
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -19,7 +16,7 @@ import flask
 from toycommons.drive import DriveConnect
 
 app = Flask(__name__)
-tc = ToyInfra('toychest', user=getenv('MONGO_USER'), passwd=getenv('MONGO_PASSWORD'), ignore_drive_errors=True)
+tc = ToyInfra('toychest', user=getenv('MONGO_USER'), passwd=getenv('MONGO_PASSWORD')) #, ignore_drive_errors=True)
 
 times = [5, 30, 180, 3000, -1]
 app.config.setdefault('backoff', times[0])
