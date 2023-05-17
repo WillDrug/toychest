@@ -8,12 +8,8 @@ from os import path
 from itertools import chain
 from time import time
 from os import getenv
-import json
-from google_auth_oauthlib.flow import InstalledAppFlow
 from toycommons import ToyInfra
-import google_auth_oauthlib
 import flask
-from toycommons.drive import DriveConnect
 
 app = Flask(__name__)
 tc = ToyInfra('toychest', user=getenv('MONGO_USER'), passwd=getenv('MONGO_PASSWORD')) #, ignore_drive_errors=True)
@@ -163,55 +159,3 @@ def command():
     return render_template('command.html', url=tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers), data=data,
                            fields=Command.all_fields(), result=result)
 
-
-def credentials_to_dict(credentials):
-    return {'token': credentials.token,
-            'refresh_token': credentials.refresh_token,
-            'token_uri': credentials.token_uri,
-            'client_id': credentials.client_id,
-            'client_secret': credentials.client_secret,
-            'scopes': credentials.scopes,
-            'id_token': credentials.id_token}
-
-
-@app.route("/.auth")  # key: /toychest/.auth
-def oauth2hack():
-    host_callback = tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers) + '/.auth'
-
-    if tc.cache.refuse:
-        return 'no.', 500
-
-    if 'secret' in request.args:
-        if getenv('DRIVE_PROJECT') not in request.args['secret']:
-            tc.cache.refuse = True
-            return 'no.', 500
-        drive_secret = json.loads(request.args['secret'])
-        if drive_secret.get('web', {}).get('project_id') != getenv('DRIVE_PROJECT'):
-            tc.cache.refuse = True
-            return 'no.', 500
-        tc.cache.secret = drive_secret
-
-        flow = google_auth_oauthlib.flow.Flow.from_client_config(drive_secret, scopes=DriveConnect.SCOPES)
-        flow.redirect_uri = host_callback
-        authorization_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
-
-        return flask.redirect(authorization_url, 302)
-
-    drive_secret = tc.cache.secret
-    if drive_secret is None:
-        return 'no.', 500
-    tc.cache.secret = None
-    # Receive an authorisation code from google
-    flow = google_auth_oauthlib.flow.Flow.from_client_config(drive_secret, scopes=DriveConnect.SCOPES)
-    flow.redirect_uri = host_callback
-    authorization_response = flask.request.url.replace('http://', 'https://')
-    # Use authorisation code to request credentials from Google
-    flow.fetch_token(authorization_response=authorization_response)
-    credentials = flow.credentials
-    credentials_to_dict(credentials)
-    # Use the credentials to obtain user information and save it to the session
-    # oauth2_client = build('oauth2','v2',credentials=credentials)
-    # user_info = oauth2_client.userinfo().get().execute()
-    tc.config.drive_token = credentials_to_dict(credentials)
-
-    return 'OK', 200
