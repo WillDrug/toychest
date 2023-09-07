@@ -14,4 +14,4 @@
 # digital ocean token usage
 echo "dns_digitalocean_token = $DIGITALOCEAN_TOKEN" > creds.ini
 chmod go-rwx creds.ini
-sudo certbot certonly --dns-digitalocean --dns-digitalocean-credentials creds.ini -d $main_domain -d $domain
+sudo certbot certonly -w /var/www/certbot --dns-digitalocean --dns-digitalocean-credentials creds.ini -d $main_domain -d $domain
