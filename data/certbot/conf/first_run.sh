@@ -14,4 +14,5 @@
 # digital ocean token usage
 echo "dns_digitalocean_token = $DIGITALOCEAN_TOKEN" > creds.ini
 chmod go-rwx creds.ini
-certbot certonly -w /var/www/certbot --dns-digitalocean --dns-digitalocean-credentials creds.ini -d $main_domain -d $domain --dns-digitalocean-propagation-seconds 120
+certbot certonly -w /var/www/certbot --dns-digitalocean --dns-digitalocean-credentials creds.ini -d $domain --dns-digitalocean-propagation-seconds 120
+certbot certonly -w /var/www/certbot --dns-digitalocean --dns-digitalocean-credentials creds.ini -d $main_domain --dns-digitalocean-propagation-seconds 120
