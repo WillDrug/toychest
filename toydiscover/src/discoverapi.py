@@ -12,7 +12,7 @@ import threading
 def prepare_app(tc):
     app = FastAPI()
 
-    service_data = {}  # non-db held service registry. If scaled, update to use db
+    service_data = {}  # todo: update to DB usage
 
     def clean():
         nonlocal service_data
@@ -31,7 +31,7 @@ def prepare_app(tc):
         return [q['service'] for q in service_data.values()]
 
     @app.on_event("startup")
-    @repeat_every(seconds=tc.config.drive_config_sync_ttl)
+    @repeat_every(seconds=tc.config.drive_config_sync_ttl)  # todo: change to discovery_sync_timeout
     async def update_config():
         # tc.get_own_config(ignore_cache=True) -> into tc.config
         config = tc.drive.file_by_id(tc.config.config_file_id)
