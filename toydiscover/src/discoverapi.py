@@ -5,8 +5,6 @@ from time import time
 from os import getenv
 from fastapi_utils.tasks import repeat_every
 import json
-import threading
-
 
 
 def prepare_app(tc):

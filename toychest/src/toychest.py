@@ -118,7 +118,7 @@ def command():
 
     if request.method == 'POST':
         data = request.form.to_dict()
-        try:
+        try:  # todo: switch this to API auth instead of internal one.
             extra_tc = ToyInfra('admin', user=data.pop('user'), passwd=data.pop('password'))
             for k in list(data.keys()):
                 if data[k] is None or data[k] == '':
