@@ -74,7 +74,7 @@ def index():
 
 @app.route('/dynamic/<path:filename>')
 def dynamic(filename):
-    c = tc.commands.receive('toychest', filename, message='sync')  # expecting only sync for now
+    c = tc.commands.receive('toychest', filename)  # expecting only sync for now
     if not path.exists(path.join(app.static_folder, filename)) or c is not None:
         data = tc.drive.file_by_name(filename, folder=tc.name)
         if data is not None:
@@ -113,9 +113,9 @@ def command():
     if request.method == 'POST':
         data = request.form.to_dict()
         try:  # todo: switch this to API auth instead of internal one.
-            extra_tc = ToyInfra('admin', user=data.pop('user'), passwd=data.pop('password'))
             if tc.config.command_access_token is None or tc.config.command_access_token != data.get('token'):
                 raise AuthException(f'Oh no, no')
+            del data['token']
             for k in list(data.keys()):
                 if data[k] is None or data[k] == '':
                     del data[k]
@@ -126,7 +126,7 @@ def command():
                 for k in config:
                     tc.config[k] = config[k]
             else:
-                extra_tc.commands.send(c)
+                tc.commands.send(c)
         except AuthException as e:
             try:
                 idx = times.index(tc.cache.backoff)
