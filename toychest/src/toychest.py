@@ -1,7 +1,7 @@
-
+from toycommons.model.exceptions import AuthException
 from flask import Flask, request, render_template, abort
 from toycommons.model.service import Service
-from toycommons.model.command import Command
+from toycommons.model.message import Command
 from pymongo.errors import OperationFailure
 from toycommons.drive.document import HTMLConverter, CSSStructure
 from os import path
@@ -9,6 +9,7 @@ from itertools import chain
 from time import time
 from os import getenv
 from toycommons import ToyInfra
+import json
 import flask
 
 app = Flask(__name__)
@@ -73,15 +74,8 @@ def index():
 
 @app.route('/dynamic/<path:filename>')
 def dynamic(filename):
-    resync = False
-    q = tc.commands.get_queue(action='sync', domain=tc.name, file=filename)
-    for c in q:
-        try:
-            q.send(True)
-        except StopIteration:
-            pass
-        resync = True
-    if not path.exists(path.join(app.static_folder, filename)) or resync:
+    c = tc.commands.receive('toychest', filename, message='sync')  # expecting only sync for now
+    if not path.exists(path.join(app.static_folder, filename)) or c is not None:
         data = tc.drive.file_by_name(filename, folder=tc.name)
         if data is not None:
             with open(path.join(app.static_folder, filename), 'wb') as f:
@@ -98,7 +92,7 @@ def google_doc(url_name):
         return '', 404
 
     gdoc = tc.drive.get_google_doc(url_name, fid, filename=f'{url_name}.gdoc',
-                                   domain=tc.name, get_synced=True, command_queue=tc.commands,
+                                   domain=tc.name, get_synced=True, command_storage=tc.commands,
                                    cache_images=True, image_folder=app.static_folder,
                                    uri_prepend=f'{tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers)}/static/')
     classes = CSSStructure(outer_div='container-doc main-body container')
@@ -120,23 +114,20 @@ def command():
         data = request.form.to_dict()
         try:  # todo: switch this to API auth instead of internal one.
             extra_tc = ToyInfra('admin', user=data.pop('user'), passwd=data.pop('password'))
+            if tc.config.command_access_token is None or tc.config.command_access_token != data.get('token'):
+                raise AuthException(f'Oh no, no')
             for k in list(data.keys()):
                 if data[k] is None or data[k] == '':
                     del data[k]
             c = Command(**data)
-            if c.action == 'configstr':
-                current = extra_tc.config[c.name]
-                if current is None or not isinstance(current, str):
-                    raise ArithmeticError(f'Wrong datatype or no config field')
-                extra_tc.config[c.name] = c.str_value
-            elif c.action == 'configint':
-                current = extra_tc.config[c.name]
-                if current is None or not isinstance(current, int):
-                    raise ArithmeticError(f'Wrong datatype or no config field')
-                extra_tc.config[c.name] = int(c.num_value)
+            if c.recipient == 'config' and c.message == 'sync':
+                config = tc.drive.file_by_id(tc.config.config_file_id)
+                config = json.loads(config.decode())
+                for k in config:
+                    tc.config[k] = config[k]
             else:
-                extra_tc.commands.insert(c)
-        except OperationFailure:
+                extra_tc.commands.send(c)
+        except AuthException as e:
             try:
                 idx = times.index(tc.cache.backoff)
             except ValueError:
@@ -147,6 +138,7 @@ def command():
             except IndexError:
                 tc.cache.backoff = -1
             tc.cache.backed_off = time()
+            # no result, no info.
         except Exception as e:
             result = f'{e.__class__}: {e.__str__()}'
         else:
@@ -156,6 +148,6 @@ def command():
         data = {'footer': 'Sadface'}
     else:
         data = toychest_data.data
-    return render_template('command.html', url=tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers), data=data,
-                           fields=Command.all_fields(), result=result)
-
+    return render_template('command.html', url=tc.get_self_url(origin=flask.request.origin,
+                                                               headers=flask.request.headers), data=data,
+                           result=result)

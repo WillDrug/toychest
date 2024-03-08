@@ -36,19 +36,23 @@
                     </div>
                 {% endif %}
                 <div class="mb-3">
-                  <label for="user" class="form-label">Login</label>
-                  <input type="text" name="user" class="form-control" id="user" placeholder="">
+                  <label for="token" class="form-label">¸,ø¤º°`°º¤ø,¸¸,ø¤º° 𝓉Ø𝐊ｅ𝐍 °º¤ø,¸¸,ø¤º°`°º¤ø,¸</label>
+                  <input class="form-control" name="token" id="token" type="password">
+                </div>
+
+                <div class="mb-3">
+                  <label for="domain" class="form-label">Domain</label>
+                  <input class="form-control" name="domain" id="domain" type="text">
                 </div>
                 <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
-                  <input class="form-control" name="password" id="password" type="password">
+                  <label for="recipient" class="form-label">Recipient</label>
+                  <input class="form-control" name="recipient" id="recipient" type="text">
                 </div>
-                {% for field in fields %}
                 <div class="mb-3">
-                  <label for="{{ field }}" class="form-label">{{ field }}</label>
-                  <input class="form-control" name="{{ field }}" id="{{ field }}" type="{{ fields[field] }}">
+                  <label for="message" class="form-label">Message</label>
+                  <input class="form-control" name="message" id="message" type="text">
                 </div>
-                {% endfor %}
+
                 <div class="col-auto">
                     <button type="submit" class="btn btn-primary mb-3">Send</button>
                 </div>
