@@ -1,3 +1,4 @@
 uvicorn
 fastapi
 fastapi_utils
+typing_inspect
