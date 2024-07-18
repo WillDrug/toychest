@@ -116,6 +116,8 @@ def command():
             if tc.config.command_access_token is None or tc.config.command_access_token != data.get('token'):
                 raise AuthException(f'Oh no, no')
             del data['token']
+            if data['domain'] == '':
+                data['domain'] = None
             for k in list(data.keys()):
                 if data[k] is None or data[k] == '':
                     del data[k]
