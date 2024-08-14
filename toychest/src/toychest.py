@@ -21,6 +21,7 @@ app.config.setdefault('backoff', times[0])
 
 tc.drive.add_directory(tc.name)
 toychest_data = tc.get_own_config()  # command action sync domain toychest filename toychest.json
+app.config.update(toychest_data.data)
 
 
 def get_servable_docs():
@@ -31,9 +32,15 @@ def get_servable_docs():
         if ';' not in f['description']:
             continue
         srv = {'name': f['name']}
-        local_name, srv['description'] = f['description'].split(';')
+        local_name, srv['description'], *srv['tags'] = f['description'].split(';')
         srv['host'] = f'/g/{local_name}'
-        srv.update(toychest_data.data.get('gdocs', {}).get(local_name, {}))
+
+        # override from json if needed (shouldn't be)
+        # like
+        #     "how-toychest-was-built": {
+        #         "tags": ["Article", "Technology"]
+        #     }
+        srv.update(app.config.get('gdocs', {}).get(local_name, {}))
         gdocs.append(Service(**srv))
 
     return gdocs
@@ -53,7 +60,7 @@ def get_doc_id(name):
 @app.route("/")
 def index():
     services = tc.discover.get_services()
-    services.extend([Service(**q) for q in toychest_data.data['cards']])
+    services.extend([Service(**q) for q in app.config.get('cards', [])])
     services.extend(get_servable_docs())
 
     tags = []
@@ -69,7 +76,7 @@ def index():
         tags = list(set(chain(*[q.tags for q in services if q.tags is not None])))
 
     return render_template('index.html', url=tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers),
-                           data=toychest_data.data, services=services, tags=tags)
+                           data=app.config, services=services, tags=tags)
 
 
 @app.route('/dynamic/<path:filename>')
@@ -99,7 +106,7 @@ def google_doc(url_name):
     cards = get_servable_docs()
     cards = [q for q in cards if url_name not in q.host]
     html_converter = HTMLConverter(gdoc.data, css_classes=classes, ignore_black_white=True)
-    return render_template('google_doc.html', document=html_converter.body_as_html(), data=toychest_data.data,
+    return render_template('google_doc.html', document=html_converter.body_as_html(), data=app.config,
                            url=tc.get_self_url(origin=flask.request.origin, headers=flask.request.headers), cards=cards)
 
 
@@ -122,11 +129,15 @@ def command():
                 if data[k] is None or data[k] == '':
                     del data[k]
             c = Command(**data)
-            if c.recipient == 'config' and c.message == 'sync':
+            if c.domain is None and c.recipient == 'config' and c.message == 'sync':
                 config = tc.drive.file_by_id(tc.config.config_file_id)
                 config = json.loads(config.decode())
                 for k in config:
                     tc.config[k] = config[k]
+            elif c.domain == tc.name and c.recipient == f'{tc.name}.json' and c.message == 'sync':
+                # this is a dirty hack, this should be better
+                toychest_data.sync()
+                app.config.update(toychest_data.data)
             else:
                 tc.commands.send(c)
         except AuthException as e:
@@ -146,10 +157,8 @@ def command():
         else:
             result = 'Ok'
             tc.cache.backoff = None
-    if isinstance(toychest_data, dict):
-        data = {'footer': 'Sadface'}
-    else:
-        data = toychest_data.data
+
+    data = app.config
     return render_template('command.html', url=tc.get_self_url(origin=flask.request.origin,
                                                                headers=flask.request.headers), data=data,
                            result=result)
