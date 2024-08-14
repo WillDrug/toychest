@@ -52,7 +52,7 @@ def get_doc_id(name):
             continue
         if ';' not in f['description']:
             continue
-        doc_name, _ = f['description'].split(';')
+        doc_name, _, *_ = f['description'].split(';')
         if doc_name == name:
             return f['id']
     return None
